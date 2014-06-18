@@ -17,6 +17,20 @@ def get_crossword(id, type='cryptic'):
     r = requests.get(url)
     soup = BeautifulSoup(r.text)
 
+    # Let's grab the Title, Author and Date
+    title = soup.find("div", {'id': 'main-article-info'}).h1.text
+
+    article_attributes = soup.find("ul", {'class': 'article-attributes'})
+    
+    author = article_attributes.find("li", {'class': 'byline'}).a.text
+
+    # Some more excellent string splitting here ..
+    # Reliant on the time always being 00.00    
+    date = article_attributes.find("li", {'class': 'publication'}).text
+    date = string.strip((date.split(','))[1].split('00')[0])
+
+
+
     # We get the clues- and the layout of the clues 
     raw_clues_across = soup.find("div", {'class':'clues-col'})
     raw_clues_down = soup.find("div", {'class':'clues-col last'})
@@ -129,11 +143,11 @@ def get_crossword(id, type='cryptic'):
     root = etree.Element('crossword')
 
     child = etree.Element('Title')
-    child.attrib['v'] = "This title doesn't appear"
+    child.attrib['v'] = title + ', ' + date
     root.append(child)
 
     child = etree.Element('Author')
-    child.attrib['v'] = "AUTHOR"
+    child.attrib['v'] = author
     root.append(child)
 
     child = etree.Element('Category')
@@ -145,7 +159,7 @@ def get_crossword(id, type='cryptic'):
     root.append(child)
 
     child = etree.Element('Editor')
-    child.attrib['v'] = "EDITOR"
+    child.attrib['v'] = "The Editor"
     root.append(child)
 
     child = etree.Element('Width')
@@ -192,3 +206,7 @@ def get_crossword(id, type='cryptic'):
     s = etree.tostring(root)
 
     return s
+
+if __name__ == "__main__":
+    print get_crossword('26285')
+
