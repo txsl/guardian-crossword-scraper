@@ -50,12 +50,13 @@ def get_crossword(id, type='cryptic'):
     for li in raw_clues_across.findAll('li'):
         # We strip off the start of the string since it has rubbish
         clue = li.text[5:]
+        clue_id = li.span.text.split(",")[0]
 
         # Empty dict for each clue ID
-        across[li.span.text] = {}
+        across[clue_id] = {}
 
         # Populate the clue with the stripped (cleaned) string
-        across[li.span.text]['clue'] = string.strip(clue)
+        across[clue_id]['clue'] = string.strip(clue)
 
     # Same for down
     for li in raw_clues_down.findAll('li'):
