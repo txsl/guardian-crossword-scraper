@@ -16,6 +16,9 @@ def get_crossword(id, type='cryptic'):
 
     # Get the page
     r = requests.get(url)
+    if r.status_code == 404:
+        return None
+
     soup = BeautifulSoup(r.text)
 
     # Let's grab the Title, Author and Date
