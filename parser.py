@@ -83,7 +83,7 @@ def get_crossword(id, type='cryptic', format='text'):
                 pass
 
         # With those, we can get the position the start of the clue is in
-        position = left + top*15
+        position = 1 + left + top*15
 
         # Then save to the correct clue ID
         across[div['id'].split('-')[0]]['launch_spot'] = position
@@ -103,7 +103,7 @@ def get_crossword(id, type='cryptic', format='text'):
             else:
                 pass
 
-        position = left + top*15
+        position = 1 + left + top*15
         # print down
         down[div['id'].split('-')[0]]['launch_spot'] = position
 
