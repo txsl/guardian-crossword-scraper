@@ -6,11 +6,12 @@ import tinycss
 from lxml import etree
 
 
-# This is how many pixels occupy each square, and tell us which position each crossword starts in
+# This is how many pixels occupy each square,
+# and tell us which position each crossword starts in
 square_size = 29
 
-def get_crossword(id, type='cryptic'):
 
+def get_crossword(id, type='cryptic'):
     url = "http://www.theguardian.com/crosswords/" + type + "/" + id
 
     # Get the page
@@ -21,23 +22,21 @@ def get_crossword(id, type='cryptic'):
     title = soup.find("div", {'id': 'main-article-info'}).h1.text
 
     article_attributes = soup.find("ul", {'class': 'article-attributes'})
-    
+
     author = article_attributes.find("li", {'class': 'byline'}).a.text
 
     # Some more excellent string splitting here ..
-    # Reliant on the time always being 00.00    
+    # Reliant on the time always being 00.00
     date = article_attributes.find("li", {'class': 'publication'}).text
     date = string.strip((date.split(','))[1].split('00')[0])
 
-
-
-    # We get the clues- and the layout of the clues 
-    raw_clues_across = soup.find("div", {'class':'clues-col'})
-    raw_clues_down = soup.find("div", {'class':'clues-col last'})
+    # We get the clues- and the layout of the clues
+    raw_clues_across = soup.find("div", {'class': 'clues-col'})
+    raw_clues_down = soup.find("div", {'class': 'clues-col last'})
     raw_layout = soup.find("div", {'id': 'grid'})
 
-    # We're grabbing the 'crossword' div and will grab the solutions 
-    raw_answers = soup.find("div", {'id':'wrapper'})
+    # We're grabbing the 'crossword' div and will grab the solutions
+    raw_answers = soup.find("div", {'id': 'wrapper'})
     raw_answers = raw_answers.find("div", {'class': 'crossword'})
 
     # These dicts are where all clues, locations amd solutions live
@@ -55,14 +54,12 @@ def get_crossword(id, type='cryptic'):
         # Populate the clue with the stripped (cleaned) string
         across[li.span.text]['clue'] = string.strip(clue)
 
-
     # Same for down
     for li in raw_clues_down.findAll('li'):
         clue = li.text[5:]
         clue_id = li.span.text.split(",")[0]
         down[clue_id] = {}
         down[clue_id]['clue'] = string.strip(clue)
-
 
     # We look for each word which is part of the 'across' class
     for div in raw_layout.findAll('div', {'class': 'across'}):
@@ -73,7 +70,7 @@ def get_crossword(id, type='cryptic'):
 
         # Then we go through and pick each useful position out of the styles
         for dec in stylesheet[0]:
-            
+
             if dec.name == "left":
                 left = dec.value[0].value / square_size
             elif dec.name == "top":
@@ -94,7 +91,7 @@ def get_crossword(id, type='cryptic'):
         stylesheet = parser.parse_style_attr(div['style'])
 
         for dec in stylesheet[0]:
-            
+
             if dec.name == "left":
                 left = dec.value[0].value / square_size
             elif dec.name == "top":
@@ -106,11 +103,9 @@ def get_crossword(id, type='cryptic'):
         # print down
         down[div['id'].split('-')[0]]['launch_spot'] = position
 
-
-
     # Now we collect answers
     for line in str(raw_answers.script).split("\n"):
-        
+
         # Only interested in lines with the 'solutions' array
         if "solutions[" in line:
             separated_answer = line.split('"')
@@ -119,10 +114,9 @@ def get_crossword(id, type='cryptic'):
             key = separated_answer[1].split('-')
             res = separated_answer[3]
 
-
             # This is reliant on the order of the answers going down the page
             # If not, we have problems: More code would be needed
-            
+
             # If it's the first letter then the value won't exist (key error)
             # If that happens, we start it off with the first letter.
 
@@ -137,7 +131,6 @@ def get_crossword(id, type='cryptic'):
                     across[key[0]]['answer'] = res
                 elif key[1] == 'down':
                     down[key[0]]['answer'] = res
-
 
     # Then we start creating the XML
     root = etree.Element('crossword')
@@ -170,7 +163,6 @@ def get_crossword(id, type='cryptic'):
     child.attrib['v'] = "15"
     root.append(child)
 
-
     # Here we actually add each clue and solution in to the XML
     across_child = etree.Element('across')
 
@@ -186,7 +178,6 @@ def get_crossword(id, type='cryptic'):
         i += 1
 
     root.append(across_child)
-
 
     down_child = etree.Element('down')
 
@@ -209,4 +200,3 @@ def get_crossword(id, type='cryptic'):
 
 if __name__ == "__main__":
     print get_crossword('26285')
-
