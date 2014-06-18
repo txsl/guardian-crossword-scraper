@@ -136,6 +136,21 @@ def get_crossword(id, type='cryptic', format='text'):
                 elif key[1] == 'down':
                     down[key[0]]['answer'] = res
 
+    # Populate the 'all answers' key
+    all_answers = list("-" * 225)
+
+    for key, val in across.iteritems():
+        for i in range(len(val['answer'])):
+            index = val['launch_spot']
+            all_answers[i + index - 1] = val['answer'][i]
+
+    for key, val in down.iteritems():
+        for i in range(len(val['answer'])):
+            index = val['launch_spot']
+            all_answers[i*15 + index - 1] = val['answer'][i]
+
+    all_answers = ''.join(all_answers)
+
     # Then we start creating the XML
     root = etree.Element('crossword')
 
@@ -165,6 +180,10 @@ def get_crossword(id, type='cryptic', format='text'):
 
     child = etree.Element('Height')
     child.attrib['v'] = "15"
+    root.append(child)
+
+    child = etree.Element('Allanswer')
+    child.attrib['v'] = all_answers
     root.append(child)
 
     # Here we actually add each clue and solution in to the XML
