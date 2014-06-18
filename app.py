@@ -26,4 +26,5 @@ def return_guardian_crossword(type, id):
     print cached
     return Response(data, mimetype='text/xml')
 
-app.run()
+if __name__ == "__main__":
+    app.run()
