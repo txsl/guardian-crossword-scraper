@@ -11,7 +11,7 @@ from lxml import etree
 square_size = 29
 
 
-def get_crossword(id, type='cryptic'):
+def get_crossword(id, type='cryptic', format='text'):
     url = "http://www.theguardian.com/crosswords/" + type + "/" + id
 
     # Get the page
@@ -198,9 +198,12 @@ def get_crossword(id, type='cryptic'):
 
     root.append(down_child)
 
-    s = etree.tostring(root)
-
-    return s
+    if format == 'etree':
+        return root
+    else:
+        return etree.tostring(root)
 
 if __name__ == "__main__":
-    print get_crossword('26285')
+    dom = get_crossword('26285',format='etree')
+    # The same crossword as http://www.theguardian.com/crosswords/cryptic/26285
+    print(etree.tostring(dom, pretty_print=True))
