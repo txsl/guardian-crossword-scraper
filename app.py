@@ -23,7 +23,6 @@ def return_guardian_crossword(type, id):
             cached[type] = {}
             cached[type][id] = data
 
-    print cached
     return Response(data, mimetype='text/xml')
 
 if __name__ == "__main__":
