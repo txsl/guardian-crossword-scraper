@@ -1,4 +1,5 @@
 import string
+import re
 
 import requests
 from bs4 import BeautifulSoup
@@ -49,21 +50,24 @@ def get_crossword(id, type='cryptic', format='text'):
     # Populate the clues
     for li in raw_clues_across.findAll('li'):
         # We strip off the start of the string since it has rubbish
-        clue = li.text[5:]
+        clue = process_clue(li.text)
+
         clue_id = li.span.text.split(",")[0]
 
         # Empty dict for each clue ID
         across[clue_id] = {}
 
         # Populate the clue with the stripped (cleaned) string
-        across[clue_id]['clue'] = string.strip(clue)
+        across[clue_id]['clue'] = clue
 
     # Same for down
     for li in raw_clues_down.findAll('li'):
-        clue = li.text[5:]
+        # print li.text
+        # print string.strip(li.text[2:])
+        clue = process_clue(li.text)
         clue_id = li.span.text.split(",")[0]
         down[clue_id] = {}
-        down[clue_id]['clue'] = string.strip(clue)
+        down[clue_id]['clue'] = clue
 
     # We look for each word which is part of the 'across' class
     for div in raw_layout.findAll('div', {'class': 'across'}):
@@ -221,6 +225,24 @@ def get_crossword(id, type='cryptic', format='text'):
         return root
     else:
         return etree.tostring(root)
+
+def process_clue(clue):
+
+    print clue
+
+    clues = clue.split(" ")[1:]
+    print clues
+    clue = " ".join(clues)
+    clue = string.strip(clue)
+
+    r_unwanted = re.compile("[\n\t\r]")
+    clue = r_unwanted.sub("", clue)
+    
+    clue = string.strip(clue)
+
+    # print clue
+
+    return clue
 
 if __name__ == "__main__":
     dom = get_crossword('26285',format='etree')
